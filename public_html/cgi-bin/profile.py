@@ -51,7 +51,7 @@ if cookie_string:   #user already has session id
         print '<body>'
         print '<p>Your session has expired.'
         print '<br/>'
-        print 'Please <a href=./htdocs/login.html>log in</a> again.'
+        print 'Please <a href=login.py>log in</a> again.'
         print '</body>'
         print '</html>'
 else:   #no cookie, redirect to login
@@ -61,6 +61,6 @@ else:   #no cookie, redirect to login
     print '<html>'
     print '<head>'
     print '<title>Pigskinners</title>'
-    print '<meta http-equiv="refresh" content="1; url=login.py />'
+    print '<meta http-equiv="refresh" content="1; url=login.py" />'
     print '</head>'
     print '</html>'
