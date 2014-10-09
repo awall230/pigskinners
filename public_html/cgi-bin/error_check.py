@@ -7,19 +7,16 @@ import Cookie
 import cgitb
 cgitb.enable()
 
-conn = sqlite3.connect('../db/sqlite/users.db')
+conn = sqlite3.connect('./users.db')
 c = conn.cursor()
 
 def main():
 
     form = cgi.FieldStorage()
     email = form['email'].value
-#    email = 'test5@test.com'
     password = form['password'].value
-#    password = 'testpw'
     c.execute("select * from users where email = ?;", (email,))
     account = c.fetchall()
-#    form = {'last_page':'registration'}
     
     if form['last_page'].value == 'registration':
         if len(account) > 0:
@@ -44,9 +41,6 @@ def main():
             first_name = form['first_name'].value
             last_name = form['last_name'].value
             fav_team = form['fav_team'].value
-#           first_name = 'Sterling'
-#            last_name = 'Waller'
-#            fav_team = 'Giants'
             c.execute("insert into users (email, password, first_name, last_name, fav_team)"
                   "values (?,?,?,?,?);", (email, password, first_name, last_name, fav_team))
             conn.commit()

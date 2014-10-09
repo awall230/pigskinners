@@ -8,25 +8,9 @@ import Cookie
 import cgitb
 cgitb.enable()
 
-#form = cgi.FieldStorage()
-
-
-
-#first_name = form['first_name'].value
-#last_name = form['last_name'].value
-#email = form['email'].value
-#password = form['password'].value
-#fav_team = form['fav_team'].value
-
-#first_name = 'Adam'
-#last_name = 'Waller'
-#email = 'test'
-#password = 'testpw'
-#fav_team = 'Giants'
-
 cookie_string = os.environ.get('HTTP_COOKIE')
 
-conn = sqlite3.connect('../db/sqlite/users.db')
+conn = sqlite3.connect('./users.db')
 c = conn.cursor()
 
 if cookie_string:
@@ -67,15 +51,3 @@ else:
         print 'Please <a href=./htdocs/login.html>log in</a> again.'
         print '</body>'
         print '</html>'
-    
-
-#try:
-#    c.execute("insert into users (email, password, first_name, last_name, fav_team)"
-#              "values (?,?,?,?,?);", (email, password, first_name, last_name, fav_team))
-#    conn.commit()
-#except sqlite3.IntegrityError:
-#    Pass
-
-#c.execute("select * from users where email = ?;", (email,))
-#info = c.fetchall()[0]
-
