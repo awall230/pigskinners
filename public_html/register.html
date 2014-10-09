@@ -5,19 +5,20 @@
 
     <body>
         <h1>New User Registration</h1>
-        <form method="post" action="./cgi-bin/profile.py">
-            First Name: <input name="first_name" type=text size="50"/>
+        <form method="post" action="./cgi-bin/error_check.py">
+            First Name: <input name="first_name" type=text size="20"/>
             </br>
-            Last Name: <input name="last_name" type=text size="50"/>
+            Last Name: <input name="last_name" type=text size="20"/>
             </br>
-            E-mail: <input name="email" type=text size="100"/>
+            E-mail: <input name="email" type=text size="50"/>
             </br>
-            Password: <input name="password" type="password" size="50"/>
+            Password: <input name="password" type="password" size="20"/>
             </br>
-            Re-enter Password: <input name="password2" type="password" size="50"/>
+            Re-enter Password: <input name="password2" type="password" size="20"/>
             </br>
-            Favorite NFL Team: <input name="fav_team" type=text size="100"/>
+            Favorite NFL Team: <input name="fav_team" type=text size="50"/>
             </br>
+            <input name="last_page" type="hidden" value="registration"/>
             <input type="submit"> <input type="reset">
         </form>
 

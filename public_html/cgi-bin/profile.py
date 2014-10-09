@@ -2,17 +2,21 @@
 
 import cgi
 import sqlite3
+import os
+import Cookie
 
 import cgitb
 cgitb.enable()
 
-form = cgi.FieldStorage()
+#form = cgi.FieldStorage()
 
-first_name = form['first_name'].value
-last_name = form['last_name'].value
-email = form['email'].value
-password = form['password'].value
-fav_team = form['fav_team'].value
+
+
+#first_name = form['first_name'].value
+#last_name = form['last_name'].value
+#email = form['email'].value
+#password = form['password'].value
+#fav_team = form['fav_team'].value
 
 #first_name = 'Adam'
 #last_name = 'Waller'
@@ -20,31 +24,58 @@ fav_team = form['fav_team'].value
 #password = 'testpw'
 #fav_team = 'Giants'
 
-conn = sqlite3.connect('../users.db')
+cookie_string = os.environ.get('HTTP_COOKIE')
+
+conn = sqlite3.connect('../db/sqlite/users.db')
 c = conn.cursor()
 
-try:
-    c.execute("insert into users (email, password, first_name, last_name, fav_team)"
-              "values (?,?,?,?,?);", (email, password, first_name, last_name, fav_team))
-    conn.commit()
-except sqlite3.IntegrityError:
-    pass
+if cookie_string:
+    cook = Cookie.SimpleCookie(cookie_string)
+    saved_session_id = cook['session_id'].value
+    
+    c.execute('select * from users where session_id=?', (saved_session_id,))
+    account = c.fetchall()
+    if len(account) > 0:
+        email = account[0][0]
+        first_name = account[0][2]
+        last_name = account[0][3]
+        fav_team = account[0][4]
+        
+        print 'Content-type: text/html'
+        print
+        
+        print '<html>'
+        print '<head><title>My Profile</title></head>'
+        print '<body>'
+        print '<h1>' + first_name + ' ' + last_name + '</h1>'
+        print '<p>'
+        print email
+        print '</br>'
+        print 'Fan of the ' + fav_team
+        print '</p>'
+        print '</body>'
+        print '</html>'
+else:
+        print 'Content-type: text/html'
+        print
 
-c.execute("select * from users where email = ?;", (email,))
-info = c.fetchall()[0]
+        print '<html>'
+        print '<head><title>Session Expired</title></head>'
+        print '<body>'
+        print '<p>Your session has expired.'
+        print '<br/>'
+        print 'Please <a href=./htdocs/login.html>log in</a> again.'
+        print '</body>'
+        print '</html>'
+    
 
+#try:
+#    c.execute("insert into users (email, password, first_name, last_name, fav_team)"
+#              "values (?,?,?,?,?);", (email, password, first_name, last_name, fav_team))
+#    conn.commit()
+#except sqlite3.IntegrityError:
+#    Pass
 
-print 'Content-type: text/html'
-print
+#c.execute("select * from users where email = ?;", (email,))
+#info = c.fetchall()[0]
 
-print '<html>'
-print '<head><title>My Profile</title></head>'
-print '<body>'
-print '<h1>' + str(info[2]) + ' ' + str(info[3]) + '</h1>'
-print '<p>'
-print str(info[0])
-print '</br>'
-print 'Fan of the ' + str(info[4])
-print '</p>'
-print '</body>'
-print '</html>'

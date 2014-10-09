@@ -15,7 +15,6 @@ print '<html>'
 print '<head><title>Pigskinners time test></title></head>'
 print '<body>'
 print '<h1>The time is ' + str(datetime.datetime.now()) + '</h1>'
-if 'my_string' in form:
-    print '<h2>You typed: ' + form['my_string'].value + '</h2>'
+print '<h2>You typed: ' + form['my_string'].value + '</h2>'
 print '</body>'
 print '</html>'
