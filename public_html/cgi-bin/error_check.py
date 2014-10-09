@@ -13,13 +13,16 @@ c = conn.cursor()
 def main():
 
     form = cgi.FieldStorage()
+    
+    #should have email and pw regardless of whether user is coming from registration or login
     email = form['email'].value
     password = form['password'].value
+    #see if email is in users database
     c.execute("select * from users where email = ?;", (email,))
     account = c.fetchall()
     
-    if form['last_page'].value == 'registration':
-        if len(account) > 0:
+    if form['last_page'].value == 'registration':   #just submitted registration form
+        if len(account) > 0:    #e-mail already in database
             print 'Content-type: text/html'
             print
     
@@ -34,24 +37,25 @@ def main():
             print '</p>'
             print '</body>'
             print '</html>'
-        else:
+        else:   #valid new account
             #write to database
-            #send cookie with e-mail and sessionid
-            #redirect to profile.py
             first_name = form['first_name'].value
             last_name = form['last_name'].value
             fav_team = form['fav_team'].value
             c.execute("insert into users (email, password, first_name, last_name, fav_team)"
                   "values (?,?,?,?,?);", (email, password, first_name, last_name, fav_team))
             conn.commit()
+            #send cookie with sessionid
+            #redirect to profile.py
             login(email)
             
     
     
-    elif form['last_page'].value == 'login':
+    elif form['last_page'].value == 'login':    #just tried to log in
+        #see if email and password match database
         c.execute("select * from users where email = ? AND password = ?;", (email, password))
         account = c.fetchall()
-        if len(account) == 0:
+        if len(account) == 0:   #no match in database
             #redirect back to login.py with error=bad_login
             print 'Content-type: text/html'
             print
@@ -64,11 +68,13 @@ def main():
             print '</html>'
             
         else:
-            #send cookie with e-mail and sessionid
+            #success, send cookie with sessionid
             #redirect to profile.py
             login(email)
     
 def login(email_address):
+    """Sends cookie to user with unique session id, and redirects to profile.py"""
+    
     import uuid
     session_id = str(uuid.uuid4())
     c.execute('update users set session_id=? where email=?', (session_id, email_address))
