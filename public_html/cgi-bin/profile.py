@@ -33,6 +33,7 @@ if cookie_string:   #user already has session id
         print '<html>'
         print '<head><title>My Profile</title></head>'
         print '<body>'
+        print '<p><a href=../index.html>Home</a></p>'
         print '<h1>' + first_name + ' ' + last_name + '</h1>'
         print '<p>'
         print email
