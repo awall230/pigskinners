@@ -7,7 +7,7 @@ import Cookie
 import cgitb
 cgitb.enable()
 
-conn = sqlite3.connect('./users.db')
+conn = sqlite3.connect('../users.db')
 c = conn.cursor()
 
 def main():

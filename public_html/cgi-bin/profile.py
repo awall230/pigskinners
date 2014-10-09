@@ -10,7 +10,7 @@ cgitb.enable()
 
 cookie_string = os.environ.get('HTTP_COOKIE')
 
-conn = sqlite3.connect('./users.db')
+conn = sqlite3.connect('../users.db')
 c = conn.cursor()
 
 if cookie_string:
