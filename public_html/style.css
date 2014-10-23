@@ -10,3 +10,11 @@ h1{
 	 height: 500px; 
 	 width: 250px;
 }
+
+.button{
+	display: block;
+	color: rgb(255,255,255);
+	height: 30px;
+	width: 248px;
+	border: 2px solid rgb(255,255,255);
+}
