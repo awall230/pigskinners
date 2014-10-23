@@ -1,19 +1,45 @@
 <html>
     <head>
     <title>Pigskinners</title>
+    <link rel = "stylesheet" href = "style.css">
+        <script src="jquery-1.11.1.min.js"></script>
+        <script type="text/javascript">
+            
+            $(document).ready(function() {
+                $.ajax({
+                    url: "cgi-bin/check_session.py",
+                    type: "GET",
+                    dataType: "json",
+                    
+                    success: function(dat) {
+                        console.dir(dat);
+                        if (dat.logged_in == "True") {
+                            $("#session_info").append('Welcome back, ');
+                            $("#session_info").append('<a href=cgi-bin/profile.py>' + dat.first_name + '</a>');
+                            $("#session_info").append(' | <a href=cgi-bin/logout.py>Log Out</a>');
+                        }
+                        else {
+                            $("#session_info").append('<a href=cgi-bin/login.py>Log In</a> ');
+                            $("#session_info").append('or <a href=cgi-bin/register.py>Register</a>');
+                        }
+                        console.log(dat.login);
+                    },
+                });
+            });
+        
+        </script>
+
     </head>
     
     <body>
         <h1>Welcome to Pigskinners!</h1>
         <h2>It's not whether you win or lose, but if you beat the spread.</h2>
-        <br/>
-        Take a second to <a href=register.html>register.</a>
-        <br/>
-        Or <a href=./cgi-bin/login.py>log in.</a>
-        <br/>
-        Already logged in? Go to <a href=cgi-bin/profile.py>your profile</a>.
-        <br/>
-        See <a href=./cgi-bin/get_odds.py>current odds.</a>
+        <div id = "margin">
+        	<br><a href="index.html">HOME</a></br>
+        </div>
+        <div id="session_info"></div>
+        <p>
+        Get <a href="cgi-bin/get_odds.py">current odds</a>
         </p>
     </body>
 </html>

@@ -1,7 +1,36 @@
 #!/usr/bin/env python
 
+import cgi
+import sqlite3
+import os
+import Cookie
 from xml.dom import minidom
 import urllib2
+
+import cgitb
+cgitb.enable()
+
+#cookie_string = os.environ.get('HTTP_COOKIE')
+cookie_string = None
+
+conn = sqlite3.connect('../users.db')
+c = conn.cursor()
+games_conn = sqlite3.connect('../games.db')
+g = games_conn.cursor()
+
+logged_in = False
+first_name = ""
+
+if cookie_string:   #user already has session id
+    cook = Cookie.SimpleCookie(cookie_string)
+    saved_session_id = cook['session_id'].value
+    
+#    check if session id is valid
+    c.execute('select * from users where session_id=?', (saved_session_id,))
+    account = c.fetchall()
+    if len(account) > 0:
+        logged_in = True
+        first_name = account[0][2]
 
 f = urllib2.urlopen('http://www.referincome.com/odds/rss2/football_nfl.xml')
 xmldoc = minidom.parse(f)
@@ -35,6 +64,7 @@ for i in range(1, len(itemlist)-1):
             team_a += game[0][j] + ' '
             j += 1
         else:
+            team_a = team_a[:-1]
             break
     spread_a = float(game[0][j])
     j += 2  #skip the 'O' for over
@@ -52,6 +82,7 @@ for i in range(1, len(itemlist)-1):
             team_b += game[1][j] + ' '
             j += 1
         else:
+            team_b = team_b[:-1] #remove last space
             break
     spread_b = float(game[1][j])
     j += 2  #skip the 'U' for under
@@ -67,8 +98,25 @@ for i in range(1, len(itemlist)-1):
     odds.append([team_a, spread_a, money_line_a, team_b, spread_b, money_line_b,
                  over, under, date_string, time_string])
 
-#for i in odds:
-#    print i
+#check to make sure database is up to date
+for game in odds:
+    g.execute('select game_id from games where team_a=? and team_b=? and date=?;',
+              (game[0], game[3], game[8]))
+    game_id = g.fetchall()
+    if len(game_id) == 0:   #not in the database yet; add it
+        g.execute('insert into games (game_id, team_a, team_b, date, time)'
+                  'values(null, ?, ?, ?, ?);', (game[0], game[3], game[8], game[9]))
+        games_conn.commit()
+        g.execute('select game_id from games where team_a=? and team_b=? and date=?;',
+              (game[0], game[3], game[8]))
+        game_id = g.fetchall()[0][0]
+        g.execute('insert into bets (bet_id, game_id, a_spread, b_spread, a_line, b_line, over_under, live)'
+                  'values(null, ?, ?, ?, ?, ?, ?, ?);', 
+                  (game_id, game[1], game[4], game[2], game[5], game[6], "True"))
+        games_conn.commit()
+
+g.execute('select * from bets;')
+games = g.fetchall()
 
 print 'Content-type: text/html'
 print
@@ -79,16 +127,9 @@ print '<body>'
 print '<p><a href=../index.html>Home</a></p>'
 print '<h1>Current Odds</h1>'
 print '<p>'
-for game in odds:
-    print '<b>' + game[0] + ' @ ' + game[3] + '</b>'
-    print '<br/>'
-    print 'Spread: ' + game[0] + ' ' + str(game[1]) + ' | ' + game[3] + ' ' + str(game[4])
-    print '<br/>'
-    print 'Moneyline: ' + game[0] + ' ' + str(game[2]) + ' | ' + game[3] + ' ' + str(game[5])
-    print '<br/>'
-    print 'Over/Under: ' + str(game[6])
-    print '<br/>'
-    print game[8] + ' ' + game[9]
+for game in games:
+    for i in game:
+        print i
     print '<br/><br/>'
 print '</p>'
 print '</body>'

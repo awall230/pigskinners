@@ -9,7 +9,7 @@ import cgitb
 cgitb.enable()
 
 def main():
-    
+
     cookie_string = os.environ.get('HTTP_COOKIE')
     
     conn = sqlite3.connect('../users.db')
@@ -35,30 +35,41 @@ def main():
             return
         else: #session id no longer valid, delete it
             cook['session_id']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT' #expiration in past, deletes cookie
-            print cook  #then continue printing login as below
+            print cook  #then continue printing registration as below
     
     print   #extra line for header
     
     print '<html>'
-    print '<head><title>Pigskinners Login</title></head>'
+    print '<head><title>Registration</title></head>'
     print '<body>'
+    print '<h1>New User Registration</h1>'
+    print '<p><a href=../index.html>Home</a></p>'
     
     form = cgi.FieldStorage()
     if 'error' in form:
-        if form['error'].value == "bad_login":
-            print '<h2>Invalid e-mail/password combination</h2>'
-        elif form['error'].value == "incomplete_login":
-            print '<h2>Please enter a username and password</h2>'
+        if form['error'].value == "different_passwords":
+            print '<h2>Passwords must match</h2>'
+        elif form['error'].value == "incomplete_registration":
+            print '<h2>Please fill out form completely</h2>'
     
     print '<form method="post" action="error_check.py">'
-    print 'E-mail: <input name="email" type=text size="30"/>'
-    print '<br/>'
+    print 'First Name: <input name="first_name" type=text size="20"/>'
+    print '</br>'
+    print 'Last Name: <input name="last_name" type=text size="20"/>'
+    print '</br>'
+    print 'E-mail: <input name="email" type=text size="50"/>'
+    print '</br>'
     print 'Password: <input name="password" type="password" size="20"/>'
-    print '<br/>'
-    print '<input name="last_page" type="hidden" value="login"/>'
+    print '</br>'
+    print 'Re-enter Password: <input name="password2" type="password" size="20"/>'
+    print '</br>'
+    print 'Favorite NFL Team: <input name="fav_team" type=text size="50"/>'
+    print '</br>'
+    print '<input name="last_page" type="hidden" value="registration"/>'
     print '<input type="submit"> <input type="reset">'
     print '</form>'
+    
     print '</body>'
     print '</html>'
-    
+
 main()
