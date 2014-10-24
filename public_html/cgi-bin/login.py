@@ -42,6 +42,7 @@ def main():
     print '<html>'
     print '<head><title>Pigskinners Login</title></head>'
     print '<body>'
+    print '<p><a href=../index.html>Home</a></p>'
     
     form = cgi.FieldStorage()
     if 'error' in form:

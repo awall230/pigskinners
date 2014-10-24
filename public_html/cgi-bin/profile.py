@@ -36,15 +36,44 @@ if cookie_string:   #user already has session id
             print '<html>'
             print '<head><title>My Profile</title></head>'
             print '<body>'
-            print '<p><a href=../index.html>Home</a> | <a href=logout.py>Log Out </a></p>'
+            print '<p><a href=../index.html>Home</a> | <a href=logout.py>Log Out</a>'
+            print ' | <a href=picks.py>Make picks</a></p>'
             print '<h1>' + first_name + ' ' + last_name + '</h1>'
             print '<h3>YOU ARE NOW LOGGED IN</h3>'
             #print '<h1>first_name + ' ' + last_name + ' , you are now logged in</h1>'
             
             print '<p>'
             print email
-            print '</br>'
+            print '<br/>'
             print 'Fan of the ' + fav_team
+            print '<br/><br/>'
+            print '</p>'
+            print '<h2>Your picks:</h2>'
+            print '<p>'
+            c.execute('select * from allusersbets where email=?;', (email,))
+            bets = c.fetchall()
+            for bet in bets:
+                #bet_type is at bet[7]
+                bet_type = int(bet[7])
+                #bold user's pick
+                if bet_type == 0 or bet_type == 2:
+                    print '<b>' + bet[2] + '</b> @ ' + bet[3]
+                elif bet_type == 1 or bet_type == 3:
+                    print bet[2] + ' @ <b>' + bet[3] + '</b>'
+                elif bet_type == 4 or bet_type == 5:
+                    print bet[2] + ' @ ' + bet[3]
+                if bet_type == 0 or bet_type == 1:
+                    print ' | Spread | ' + str(bet[8])
+                elif bet_type == 2 or bet_type == 3:
+                    print ' | Moneyline | ' + str(bet[9])
+                elif bet_type == 4:
+                    print ' | ' + '<b>Over</b>/Under | ' + str(bet[8])
+                elif bet_type == 5:
+                    print ' | ' + 'Over/<b>Under</b> | ' + str(bet[8])
+                
+                print '<br/>'
+                print bet[4] + ', ' + bet[5]
+                print '<br/><br/>'
             print '</p>'
             print '</body>'
             print '</html>'
