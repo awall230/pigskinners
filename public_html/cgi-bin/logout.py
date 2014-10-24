@@ -5,6 +5,7 @@ import cgi
 import os
 
 cookie_string = os.environ.get('HTTP_COOKIE')
+cook = None
 
 if cookie_string:   #user is logged in
     cook = Cookie.SimpleCookie()
@@ -13,12 +14,11 @@ if cookie_string:   #user is logged in
 
     
 print 'Content-type: text/html'
-print cook
+if cookie_string:
+    print cook
 print
 print '<html>'
-print '<head><title>Logged Out</title></head>'
-print '<body>'
-print '<p><a href=../index.html>Home</a></p>'
-print '<h3>YOU ARE NOW LOGGED OUT</h3>'
-print '</body>'
+print '<head><title>Logged Out</title>'
+print '<meta http-equiv="refresh" content="1; url=../index.html" />'
+print '</head>'
 print '</html>'
