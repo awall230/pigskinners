@@ -79,7 +79,7 @@ def get_odds(num, bet):
         if num > 0:
             odds = num/100.0
         elif num < 0:
-            odds = 100.0/num
+            odds = -100.0/num
     return (margin, american_odds, odds)
 
 
