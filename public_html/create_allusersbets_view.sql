@@ -1,0 +1,1 @@
+create view allusersbets as select email, g.game_id, g.team_a, g.team_b, g.date, g.time, g.status, b.bet_type, b.margin, b.american_odds, b.odds from games g, bets b where g.game_id = b.game_id;
