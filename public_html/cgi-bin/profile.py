@@ -39,7 +39,6 @@ if cookie_string:   #user already has session id
             print '<p><a href=../index.html>Home</a> | <a href=logout.py>Log Out</a>'
             print ' | <a href=picks.py>Make picks</a></p>'
             print '<h1>' + first_name + ' ' + last_name + '</h1>'
-            print '<h3>YOU ARE NOW LOGGED IN</h3>'
             #print '<h1>first_name + ' ' + last_name + ' , you are now logged in</h1>'
             
             print '<p>'
@@ -52,6 +51,8 @@ if cookie_string:   #user already has session id
             print '<p>'
             c.execute('select * from allusersbets where email=?;', (email,))
             bets = c.fetchall()
+            if len(bets) == 0:
+                print "You haven't made any picks yet.<br/>Go <a href=picks.py>make some</a>!"
             for bet in bets:
                 #bet_type is at bet[7]
                 bet_type = int(bet[7])
