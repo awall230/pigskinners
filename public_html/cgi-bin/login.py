@@ -21,21 +21,22 @@ def main():
         conn = sqlite3.connect('../users.db')
         c = conn.cursor()
         cook = Cookie.SimpleCookie(cookie_string)
-        saved_session_id = cook['session_id'].value
+        if 'session_id' in cook:
+            saved_session_id = cook['session_id'].value
         
-        #check if session id is valid
-        c.execute('select * from users where session_id=?', (saved_session_id,))
-        account = c.fetchall()
-        if len(account) > 0:    #cookie valid, redirect
-            print
-            print '<html><head>'
-            print '<meta http-equiv="refresh" content="1; url=profile.py" />'
-            print '</head></html>'
-            
-            return
-        else: #session id no longer valid, delete it
-            cook['session_id']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT' #expiration in past, deletes cookie
-            print cook  #then continue printing login as below
+            #check if session id is valid
+            c.execute('select * from users where session_id=?', (saved_session_id,))
+            account = c.fetchall()
+            if len(account) > 0:    #cookie valid, redirect
+                print
+                print '<html><head>'
+                print '<meta http-equiv="refresh" content="1; url=profile.py" />'
+                print '</head></html>'
+                
+                return
+            else: #session id no longer valid, delete it
+                cook['session_id']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT' #expiration in past, deletes cookie
+                print cook  #then continue printing login as below
     
     print   #extra line for header
     
