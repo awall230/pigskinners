@@ -17,14 +17,15 @@ first_name = ""
 
 if cookie_string:   #user already has session id
     cook = Cookie.SimpleCookie(cookie_string)
-    saved_session_id = cook['session_id'].value
-    
-    #check if session id is valid
-    c.execute('select * from users where session_id=?', (saved_session_id,))
-    account = c.fetchall()
-    if len(account) > 0:
-        logged_in = True
-        first_name = account[0][2]
+    if 'session_id' in cook:
+        saved_session_id = cook['session_id'].value
+        
+        #check if session id is valid
+        c.execute('select * from users where session_id=?', (saved_session_id,))
+        account = c.fetchall()
+        if len(account) > 0:
+            logged_in = True
+            first_name = account[0][2]
 
 #make JSON string indicating whether logged in or not
 login_string = '{"logged_in": "' + str(logged_in) + '"'
