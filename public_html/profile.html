@@ -1,0 +1,321 @@
+<html>
+    <head>
+    <title>My Profile</title>
+    <link rel = "stylesheet" href = "style.css">
+        <script src="jquery-1.11.1.min.js"></script>
+        <script type="text/javascript">
+            
+            var deferred1 = new $.Deferred();
+            var promise1 = deferred1.promise();
+            var deferred2 = new $.Deferred();
+            var promise2 = deferred2.promise();
+            
+            $(document).ready(function() {
+                $.ajax({
+                    url: "cgi-bin/check_session.py",
+                    type: "GET",
+                    dataType: "json",
+                    
+                    success: function(dat) {
+                        console.dir(dat);
+                        if (dat.logged_in) {
+                            $("#session_info").append('<a href=index.html>Home</a> | ');
+                            $("#session_info").append('<a href=cgi-bin/logout.py>Log Out</a>');
+                            
+                            $("#user_info").append('<h2>' + dat.first_name + ' ' + dat.last_name + '</h2>');
+                            $("#user_info").append('<p>' + dat.email + '<br/>Fan of the ' + dat.fav_team);
+                            $("#user_info").append('</p>');
+                            
+                            var nav_string = '<a id = "my_picks" href="#">MY PICKS</a> | ';
+                            nav_string += '<a id="current_odds" href="#">CURRENT ODDS</a>';
+                            $("#nav").prepend(nav_string);
+                            
+
+                            $(function() {
+                                displayPicks();
+                                $('#my_picks').css('font-weight', 'Bold');
+                                promise1.done(function() {
+                                    displayOdds();
+                                });
+                                promise2.done(function() {
+                                    var $picks = $('#picks tr[id]');
+                                    for (var i = 0; i < $picks.length; i++) {
+                                        addPick($picks[i].id);
+                                    }
+                                    $('#odds').hide();
+                                    clickHandlers();
+                                });
+                            });
+                        }
+                        else {  //not logged in, redirect to login page
+                            $("#redirect").append('<meta http-equiv="refresh" content="1; url=cgi-bin/login.py" />');
+                        }
+                    }
+                });
+            });
+            
+            function displayPicks() {
+                //var deferred = new $.Deferred();
+                $.ajax({
+                    url: "cgi-bin/get_picks.py",
+                    type: "GET",
+                    dataType: "json",
+                    
+                    success: function(dat) {
+                        $("#bet_info").append('<table id="picks"></table>');
+                        var $picks = $("#picks");
+                        console.dir(dat);
+                        var str, bet, bet_id;
+                        for (var i = 0; i < dat.bets.length; i++) { 
+                            displayPick(dat.bets[i]);
+                            }
+                        deferred1.resolve();
+                    }
+                });
+            }
+            
+            function clickHandlers() {
+                
+                $('#my_picks').on('click', function(e) {
+                    e.preventDefault();
+                    $(this).css('font-weight', 'Bold');
+                    $('#current_odds').css('font-weight', 'Normal');
+                    $('#odds').hide();
+                    $('#picks').show();
+                });
+                
+                $('#current_odds').on('click', function(e) {
+                    e.preventDefault();
+                    $(this).css('font-weight', 'Bold');
+                    $('#my_picks').css('font-weight', 'Normal');
+                    $('#picks').hide();
+                    $('#odds').show();
+                });                
+                
+                $('#odds a').on('click', function(e) {
+                    e.preventDefault();
+                    var b_id = $(this).parent().attr('id');
+                    $.ajax({
+                        url: "cgi-bin/make_pick.py",
+                        type: "POST",
+                        data: {
+                            bet_id: b_id,
+                            num: $(this).text(),
+                            action: "add"
+                        },
+                        dataType: "json",
+
+                        success: function(dat) {
+                            console.log('here');
+                            console.dir(dat);
+                            if (dat.bets.length > 0) {
+                                console.log('heree');
+                                displayPick(dat.bets[0]);
+                                addPick(b_id);
+                                clickHandlers();
+                            }
+                        }
+                    });
+                });
+                
+                $('table a.delete').on('click', function(e) {
+                    e.preventDefault();
+                    var b_id = $(this).parent().parent().attr('id');
+                    $.ajax({
+                        url: "cgi-bin/make_pick.py",
+                        type: "POST",
+                        data: {
+                            bet_id: b_id,
+                            num: null,
+                            action: "delete"
+                        },
+                        dataType: "json",
+
+                        success: function(dat) {
+                            deletePick(b_id);
+                            clickHandlers();
+                            }
+                    });
+                });
+            }
+            
+            function displayPick(bet) {
+                var str, bet_id;
+                var $picks = $("#picks");
+                str = "";
+                bet_id = bet.game_id + '-' + bet.bet_type;
+
+                str += '<tr id="' + bet_id + '">';
+                str += '<td class="0 2">' + bet.visitor_name + '</td>';
+                if (bet.visitor_score) {
+                    str += '<td class="0 2">' + bet.visitor_score + '</td>';
+                }
+                else {
+                    str += '<td class="0 2"></td>';
+                }
+                str += '<td class="1 3">@' + bet.home_name + '</td>';
+                if (bet.home_score) {
+                    str += '<td class="1 3">' + bet.home_score + '</td>';
+                }
+                else {
+                    str += '<td class="1 3"></td>';
+                }
+                if (bet.bet_type === '0' || bet.bet_type === '1') {
+                    str += '<td>Spread</td><td>' + bet.margin + '</td>';
+                }
+                else if (bet.bet_type === '2' || bet.bet_type === '3') {
+                    str += '<td>Moneyline</td><td>' + bet.american_odds + '</td>';
+                }
+                else if (bet.bet_type === '4' || bet.bet_type === '5') {
+                    str += '<td class="' + bet.bet_type + '">';
+                    str += (bet.bet_type === '4') ? 'Over' : 'Under';
+                    str += '</td><td>' + bet.margin + '</td>';
+                }
+                
+                if (bet.status === "open") {
+                    str += '<td><a class="delete" style="color:red" href="#">delete</a>';
+                }
+                
+                str += '</tr>';
+                
+                if (bet.result) {
+                    var result_string = "";
+                    if (parseInt(bet.result) > 0) {
+                        result_string = "Win";
+                    }
+                    else if (parseInt(bet.result) === 0) {
+                        result_string = "Push";
+                    }
+                    else {
+                        result_string = "Lose";
+                    }
+                    
+                    str += '<tr><td>Result: ' + result_string + '</td>';
+                    str += '<td>' + bet.winnings + '</td></tr>';
+                }
+
+                str += '<tr><td colspan="4">' + bet.dt + '</td></tr>';
+                str += '<tr><td><td/></tr>';
+
+                $picks.prepend(str);
+                //make user's pick bold
+                $('#' + bet_id + ' .' + bet.bet_type).css('font-weight', 'Bold');
+            }
+            
+            function displayOdds() {
+                $.ajax({
+                    url: "cgi-bin/odds.py",
+                    type: "GET",
+                    dataType: "json",
+                    
+                    success: function(dat) {
+                        $('#odds_info').append('<table id="odds"></table>');
+                        var str, game;
+                        console.dir(dat);
+                        for (var i = 0; i < dat.odds.length; i++) { 
+                            str = "";
+                            game = dat.odds[i];
+                            
+                            str += '<tr class="' + game.game_id + '">';
+                            str += '<td>Spread:</td>';
+                            str += '<td>' + game.visitor_name + '</td>';
+                            str += '<td id="' + game.game_id + '-0">';
+                            str += '<a href="#">' + game.visitor_spread + '</a></td>';
+                            str += '<td>@' + game.home_name + '</td>';
+                            str += '<td id="' + game.game_id + '-1">'
+                            str += '<a href="#">' + game.home_spread + '</a></td>';
+                            str += '</tr>';
+                            
+                            str += '<tr class="' + game.game_id + '">';
+                            str += '<td>Moneyline:</td>';
+                            str += '<td>' + game.visitor_name + '</td>';
+                            str += '<td id="' + game.game_id + '-2">'
+                            str += '<a href="#">' + game.visitor_moneyline + '</a></td>';
+                            str += '<td>@' + game.home_name + '</td>';
+                            str += '<td id="' + game.game_id + '-3">'
+                            str += '<a href="#">' + game.home_moneyline + '</a></td>';
+                            str += '</tr>';
+                            
+                            str += '<tr class="' + game.game_id + '">';
+                            str += '<td>Over/Under:</td>';
+                            str += '<td>Over</td>';
+                            str += '<td id="' + game.game_id + '-4"><a href="#">' + game.over + '</a></td>';
+                            str += '<td>Under</td>';
+                            str += '<td id="' + game.game_id + '-5"><a href="#">' + game.under + '</a></td>';
+                            str += '</tr>';
+                            
+                            str += '<tr><td colspan="4">' + game.dt + '</td></tr>';
+                            str += '<tr><td><br/></td></tr>';
+                            
+                            $('#odds').append(str);
+                        }
+                        deferred2.resolve();
+                    }
+                });
+            }
+            
+            function addPick(bet_id) {
+                var $entry = $('#odds #' + bet_id);
+                if ($entry.length > 0) {
+                    if ($entry.has('a').length > 0) {
+                        var temp = $entry.children().text();
+                        $entry.empty();
+                        $entry.append(temp);
+                        $entry.css('font-weight', 'Bold');
+                        
+                        var $opposite_entry = $entry.siblings().has('a');
+                        if ($opposite_entry.length > 0) {
+                            temp = $opposite_entry.children().text();
+                            $opposite_entry.empty();
+                            $opposite_entry.append(temp);
+                        }
+                    }
+                }
+            }
+            
+            function deletePick(bet_id) {
+                var $entry = $('#picks #' + bet_id);
+                if ($entry.length > 0) {
+                    $entry.nextAll(':lt(2)').remove();
+                    $entry.remove();
+                }
+                
+                var $entry = $('#odds #' + bet_id);
+                if ($entry.length > 0) {
+                    var temp = $entry.text();
+                    $entry.text('');
+                    $entry.append('<a href="#">' + temp + '</a>');
+                    $entry.removeAttr('style');
+                }
+                
+                var $opposite_entry = $entry.siblings('[id]');
+                if ($opposite_entry.length > 0) {
+                    var temp = $opposite_entry.text();
+                    $opposite_entry.text('');
+                    $opposite_entry.append('<a href="#">' + temp + '</a>');
+                }
+                
+                $entry.siblings('.delete').remove();
+            }
+        
+        </script>
+        
+        <div id="redirect"></div>
+
+    </head>
+    
+    <body>
+        <div id="session_info"></div>
+        
+        <div id="user_info"></div>
+        
+        <br/>
+        <div id="nav">
+        <br/><br/>
+        </div>
+    
+        <div id="bet_info"></div>
+        
+        <div id="odds_info"></div>
+    </body>
+</html>

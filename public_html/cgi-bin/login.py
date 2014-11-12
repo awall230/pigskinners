@@ -30,7 +30,7 @@ def main():
             if len(account) > 0:    #cookie valid, redirect
                 print
                 print '<html><head>'
-                print '<meta http-equiv="refresh" content="1; url=profile.py" />'
+                print '<meta http-equiv="refresh" content="1; url=../profile.html" />'
                 print '</head></html>'
                 
                 return

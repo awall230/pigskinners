@@ -93,7 +93,7 @@ def main():
                   "values (?,?,?,?,?);", (email, password, first_name, last_name, fav_team))
             conn.commit()
             #send cookie with sessionid
-            #redirect to profile.py
+            #redirect to profile
             login(email)
             
     
@@ -116,11 +116,11 @@ def main():
             
         else:
             #success, send cookie with sessionid
-            #redirect to profile.py
+            #redirect to profile
             login(email)
     
 def login(email_address):
-    """Sends cookie to user with unique session id, and redirects to profile.py"""
+    """Sends cookie to user with unique session id, and redirects to profile.html"""
     
     import uuid
     session_id = str(uuid.uuid4())
@@ -137,7 +137,7 @@ def login(email_address):
     print '<html>'
     print '<head>'
     print '<title>Pigskinners</title>'
-    print '<meta http-equiv="refresh" content="1; url=profile.py" />'
+    print '<meta http-equiv="refresh" content="1; url=../profile.html" />'
     print '</head>'
 #    print '<body>'
 #    print '<p><a href=profile.py>Profile</a></p>'

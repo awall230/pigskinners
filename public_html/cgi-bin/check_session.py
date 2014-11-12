@@ -3,6 +3,7 @@
 import sqlite3
 import os
 import Cookie
+import json
 
 import cgitb
 cgitb.enable()
@@ -13,7 +14,7 @@ conn = sqlite3.connect('../users.db')
 c = conn.cursor()
 
 logged_in = False
-first_name = ""
+data = {}	#will hold JSON data
 
 if cookie_string:   #user already has session id
     cook = Cookie.SimpleCookie(cookie_string)
@@ -25,16 +26,15 @@ if cookie_string:   #user already has session id
         account = c.fetchall()
         if len(account) > 0:
             logged_in = True
-            first_name = account[0][2]
+            data['email'] = account[0][0]
+            data['first_name'] = account[0][2]
+            data['last_name'] = account[0][3]
+            data['fav_team'] = account[0][4]
 
-#make JSON string indicating whether logged in or not
-login_string = '{"logged_in": "' + str(logged_in) + '"'
-if logged_in:
-    login_string += ', "first_name": "' + first_name + '"}'
-else:
-    login_string += '}'
+
+data['logged_in'] = logged_in
 
 #print JSON
 print "Content-type: application/json"
 print
-print login_string
+print json.dumps(data)
