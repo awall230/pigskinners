@@ -67,7 +67,7 @@ teams = {'ARI': 'Arizona',
 	'WAS': 'Washington'}
 	
 #create reverse dictionary for looking up abbreviations from full team name
-teams_reverse = {b: a for a, b in teams.items()}
+teams_reverse = dict((b,a) for (a, b) in teams.items())
 
 class Game(object):
 	

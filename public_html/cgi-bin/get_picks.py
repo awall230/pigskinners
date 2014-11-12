@@ -27,10 +27,15 @@ data['bets'] = []
 c.execute('select * from users where session_id=?', (saved_session_id,))
 account = c.fetchall()
 if len(account) > 0:
+#if True:
     email = account[0][0]
     first_name = account[0][2]
     last_name = account[0][3]
     fav_team = account[0][4]
+#    email = 'awaller@u.rochester.edu'
+#    first_name = 'Adam'
+#    last_name = 'Waller'
+#    fav_team = 'New York Giants'
     
     c.execute('select * from allusersbets where email=?;', (email,))
     bets = c.fetchall()

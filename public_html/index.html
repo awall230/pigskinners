@@ -13,12 +13,10 @@
                     
                     success: function(dat) {
                         console.dir(dat);
-                        if (dat.logged_in == "True") {
+                        if (dat.logged_in) {
                             $("#session_info").append('Welcome back, ');
-                            $("#session_info").append('<a href=cgi-bin/profile.py>' + dat.first_name + '</a>');
+                            $("#session_info").append('<a href=profile.html>' + dat.first_name + '</a>');
                             $("#session_info").append(' | <a href=cgi-bin/logout.py>Log Out</a>');
-                            $("#session_info").append('<br/><br/><a href=cgi-bin/picks.py>Make picks!</a>');
-
                         }
                         else {
                             $("#session_info").append('<a href=cgi-bin/login.py class = "btn">Log In</a>');
