@@ -1,8 +1,11 @@
 create table games(
     game_id integer primary key,
-    team_a varchar(50),
-    team_b varchar(50),
-    date varchar(50),
-    time varchar(50),
-    status varchar(50)
+    visitor varchar(10),
+    visitor_score integer,
+    home varchar(10),
+    home_score integer,
+    date varchar(10),
+    time varchar(10),
+    status varchar(10),
+    complete integer
     );

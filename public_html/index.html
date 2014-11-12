@@ -21,8 +21,8 @@
 
                         }
                         else {
-                            $("#session_info").append('<a href=cgi-bin/login.py>Log In</a> ');
-                            $("#session_info").append('or <a href=cgi-bin/register.py>Register</a>');
+                            $("#session_info").append('<a href=cgi-bin/login.py class = "btn">Log In</a>');
+                            $("#session_info").append('or <a href=cgi-bin/register.py class = "btn">Register</a>');
                         }
                         console.log(dat.login);
                     },
@@ -37,7 +37,8 @@
         <h1>Welcome to Pigskinners!</h1>
         <h2>It's not whether you win or lose, but if you beat the spread.</h2>
         <div id = "margin">
-        	<br><a href="index.html">HOME</a></br>
+        	<br><a href="index.html" class = "btn">HOME</a></br>
+        	<br><a class = "btn">ABOUT</a></br>
         </div>
         <div id="session_info"></div>
     </body>
