@@ -6,6 +6,7 @@ import game
 
 f = urllib2.urlopen('http://www.nfl.com/liveupdate/scorestrip/ss.xml')
 xmldoc = minidom.parse(f)
+temp = xmldoc.getElementsByTagName('gms')[0]
 itemlist = xmldoc.getElementsByTagName('g') #get list of all games for the week
 
 conn = sqlite3.connect('../users.db')
@@ -38,10 +39,10 @@ for item in itemlist:
 	results = c.fetchall()
 	if len(results) == 0:	#not in db yet, add it
 		c.execute('insert into games (game_id, visitor, home, visitor_score,'
-		          'home_score, date, time, status, complete)'
-		          'values (null, ?,?,?,?,?,?,?,?);',
+		          'home_score, date, time, status, complete, week)'
+		          'values (null, ?,?,?,?,?,?,?,?,?);',
 		          (g.visitor, g.home, g.visitor_score, g.home_score, g.d.__str__(),
-		          time.strftime(g.t, '%H:%M'), g.status, g.complete))
+		          time.strftime(g.t, '%H:%M'), g.status, g.complete, g.week))
 		conn.commit()
 	else:
 		g.set_game_id(results[0][0])

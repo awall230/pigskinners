@@ -120,6 +120,10 @@ class Game(object):
 		self.dt = dt
 		self.d = dt.date()
 		self.t = dt.time()
+		self.set_week()
+
+	def set_week(self):
+		self.week = get_week(self.d)
 		
 	def set_status(self):
 		if self.dt > datetime.today():	#hasn't started yet
@@ -157,18 +161,23 @@ class Bet(Game):
 
 	def set_bet_type(self, b):
 		self.bet_type = int(b)
+
+	def set_amount(self, a):
+		self.amount = float(a)
 		
 	def set_result(self, r):
 		self.result = int(r)
 		self.set_winnings()
 	
 	def set_winnings(self):
+		if not hasattr(self, 'amount'):
+			self.set_amount(100.0)
 		if self.result > 0:
-			self.winnings = 100.0 * self.odds
+			self.winnings = self.amount * self.odds
 		elif self.result == 0:
 			self.winnings = 0
 		else:
-			self.winnings = -100.0
+			self.winnings = (-1.0 * self.amount)
 		
 def fix_team_name(name):
 	if name == "New York-A":
@@ -180,3 +189,8 @@ def fix_team_name(name):
 	elif name == "San Fran.":
 		name = "San Francisco"
 	return name
+
+def get_week(d):
+	opener = date(2014, 9, 2)	#Tuesday before season opener, for measuring weeks passed (so that week resets on Tues)
+	w = (d - opener).days / 7 + 1
+	return str(d.year) + '-' + str(w)

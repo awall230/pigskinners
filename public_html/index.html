@@ -6,6 +6,9 @@
         <script type="text/javascript">
             
             $(document).ready(function() {
+                var deferred = new $.Deferred();
+                var promise = deferred.promise();
+
                 $.ajax({
                     url: "cgi-bin/check_session.py",
                     type: "GET",
@@ -15,7 +18,7 @@
                         console.dir(dat);
                         if (dat.logged_in) {
                             $("#session_info").append('Welcome back, ');
-                            $("#session_info").append('<a href=profile.html>' + dat.first_name + '</a>');
+                            $("#session_info").append('<a href=profile.html?u=' + dat.email + '>' + dat.first_name + '</a>');
                             $("#session_info").append(' | <a href=cgi-bin/logout.py>Log Out</a>');
                         }
                         else {
@@ -24,6 +27,40 @@
                         }
                         console.log(dat.login);
                     },
+                });
+
+                $.ajax({
+                    url: "cgi-bin/leaderboard.py",
+                    type: "GET",
+                    dataType: "json",
+
+                    success: function(dat) {
+                        console.dir(dat);
+                        $('#leaderboard').append('<h3>Leaderboard</h3>');
+                        $('#leaderboard').append('<table></table>');
+                        var $leaderboard = $('#leaderboard table');
+                        var str, user;
+                        for (var i=0; i<dat.leaders.length; i++) {
+                            str = '';
+                            user = dat.leaders[i];
+                            str += '<tr><td>' + String(i+1) + '</td>';
+                            str += '<td><a class="user_link" href="#">' + user.email + '</a></td>';
+                            str += '<td>' + user.average_winnings + '</td>';
+                            str += '<td>' + user.total_winnings + '</td>';
+                            str += '<td>' + user.bet_count + '</td></tr>';
+
+                            $leaderboard.append(str);
+                        }
+                        deferred.resolve();
+                    }
+                });
+                
+                promise.done(function() {
+                    $('.user_link').on('click', function(e) {
+                        e.preventDefault();
+                        var user = $(this).text();
+                        window.location.href = "profile.html?u=" + user;
+                    });
                 });
             });
         
@@ -39,5 +76,7 @@
         	<br><a class = "btn">ABOUT</a></br>
         </div>
         <div id="session_info"></div>
+        <div id="leaderboard">
+        </div>
     </body>
 </html>

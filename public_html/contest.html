@@ -1,25 +1,23 @@
 <html>
     <head>
-    <title>My Profile</title>
+    <title>Weekly Contest</title>
     <link rel = "stylesheet" href = "style.css">
         <script src="jquery-1.11.1.min.js"></script>
         <script>
-            is_contest = false;
+            var is_contest = true;
+            var amount_spent = 0;   //total amount wagered (can't be more than 1000)
 
             var deferred1 = new $.Deferred();
             var promise1 = deferred1.promise();
             var deferred2 = new $.Deferred();
             var promise2 = deferred2.promise();
+
+            var user;
             
-            var user = document.URL.split('?')[1];
-            user = user.split('=')[1];
-            if (user[user.length-1] === '/') {
-                user = user.slice(0, -1);
-            }
         </script>
+        <script src="js/contest.js"></script>
         <script src="js/display_picks.js"></script>
         <script src="js/display_odds.js"></script>
-        <script src="js/profile.js"></script>
         
         <div id="redirect"></div>
 

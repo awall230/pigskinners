@@ -12,23 +12,27 @@ import json
 import cgitb
 cgitb.enable()
 
-cookie_string = os.environ.get('HTTP_COOKIE')
+#cookie_string = os.environ.get('HTTP_COOKIE')
 
 conn = sqlite3.connect('../users.db')
 c = conn.cursor()
 
-cook = Cookie.SimpleCookie(cookie_string)
-saved_session_id = cook['session_id'].value
+#cook = Cookie.SimpleCookie(cookie_string)
+#saved_session_id = cook['session_id'].value
         
 data = {}    #container for json data
 data['bets'] = []
+
+form = cgi.FieldStorage()
+if 'email' in form:
+    email = form['email'].value
+
+contest = (form['contest'].value == 'true')
         
-#check if session id is valid
-c.execute('select * from users where session_id=?', (saved_session_id,))
+c.execute('select * from users where email=?;', (email,));
 account = c.fetchall()
 if len(account) > 0:
 #if True:
-    email = account[0][0]
     first_name = account[0][2]
     last_name = account[0][3]
     fav_team = account[0][4]
@@ -37,8 +41,13 @@ if len(account) > 0:
 #    last_name = 'Waller'
 #    fav_team = 'New York Giants'
     
-    c.execute('select * from allusersbets where email=?;', (email,))
+    if contest:
+        c.execute('select * from alluserscontestbets where email=?;', (email,))
+    else:
+        c.execute('select * from allusersbets where email=?;', (email,))
     bets = c.fetchall()
+
+    current_week = game.get_week(date.today())
     
     for bet in bets:
         b = game.Bet()
@@ -51,6 +60,8 @@ if len(account) > 0:
         b.set_margin(float(bet[11]))
         b.set_american_odds(float(bet[12]))
         b.set_odds(float(bet[13]))
+        if contest:
+            b.set_amount(float(bet[16]))
         if bet[9] != None:
             b.set_complete(bet[9])
         else:
@@ -68,15 +79,25 @@ if len(account) > 0:
                 b.set_result(result)
             
             #write results to db
-            c.execute('update bets set result=?, winnings=?, status=? where email=? and game_id=? and bet_type=?;', (b.result, b.winnings, b.status, email, b.game_id, b.bet_type))
+            if contest:
+                c.execute('update bets set result=?, winnings=?, status=? where email=? and game_id=? and bet_type=?;', (b.result, b.winnings, b.status, email, b.game_id, b.bet_type))
+            else:
+                c.execute('update contestbets set result=?, winnings=?, status=? where email=? and game_id=? and bet_type=?;', (b.result, b.winnings, b.status, email, b.game_id, b.bet_type))
             conn.commit()
             
         else: #just update the bet status (open or closed)
-            c.execute('update bets set status=? where email=? and game_id=? and bet_type=?;',
-                      (b.status, email, b.game_id, b.bet_type))
+            if contest:
+                c.execute('update bets set status=? where email=? and game_id=? and bet_type=?;',
+                        (b.status, email, b.game_id, b.bet_type))
+            else:
+                c.execute('update contestbets set status=? where email=? and game_id=? and bet_type=?;',
+                        (b.status, email, b.game_id, b.bet_type))
             conn.commit()
             
         #make json string using object attributes (not callable eliminates methods)
+        if contest:
+            if b.week != current_week:
+                continue
         bet_info = [(attr, value.__str__()) for attr, value in b.__dict__.items() if not callable(value)]
         bet_info = dict(bet_info)
         data['bets'].append(bet_info)

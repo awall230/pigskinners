@@ -19,6 +19,8 @@ cookie_string = os.environ.get('HTTP_COOKIE')
 conn = sqlite3.connect('../users.db')
 c = conn.cursor()
 
+form = cgi.FieldStorage()
+
 f = urllib2.urlopen('http://www.referincome.com/odds/rss2/football_nfl.xml')
 xmldoc = minidom.parse(f)
 itemlist = xmldoc.getElementsByTagName('title')
@@ -120,15 +122,16 @@ for i in range(1, len(itemlist)-1):
 	odds.append(g)
 
 #check to make sure database is up to date
+current_week = game.get_week(date.today())
 for g in odds:
 	c.execute('select game_id from games where home=? and visitor=? and date=?;',
 			  (g.home, g.visitor, g.d.__str__()))
 	game_id = c.fetchall()    #inside a tuple inside a list
 	if len(game_id) == 0:   #not in the database yet; add it
-		c.execute('insert into games (game_id, home, visitor, date, time)'
-				  'values(null, ?, ?, ?, ?);', (g.home, g.visitor, g.d.__str__(), time.strftime(g.t, '%H:%M')))
+		c.execute('insert into games (game_id, home, visitor, date, time, week)'
+				  'values(null, ?, ?, ?, ?, ?);', (g.home, g.visitor, g.d.__str__(), time.strftime(g.t, '%H:%M'), g.week))
 		conn.commit()
-		
+
 	c.execute('select game_id from games where visitor=? and home=? and date=?;',
 		(g.visitor, g.home, g.d.__str__()))
 	game_id = c.fetchall()[0][0]
@@ -136,6 +139,9 @@ for g in odds:
 		
 	game_info = [(attr, value.__str__()) for attr, value in g.__dict__.items() if not callable(value)]
 	game_info = dict(game_info)
+	if form['contest'].value == 'true':
+		if g.week != current_week:
+			continue	#can't wager on more than one week at once in contest
 	data['odds'].append(game_info)
 	
 print "Content-type: application/json"

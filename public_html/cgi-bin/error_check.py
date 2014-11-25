@@ -137,7 +137,7 @@ def login(email_address):
     print '<html>'
     print '<head>'
     print '<title>Pigskinners</title>'
-    print '<meta http-equiv="refresh" content="1; url=../profile.html" />'
+    print '<meta http-equiv="refresh" content="1; url=../profile.html?u=' + email_address + '" />'
     print '</head>'
 #    print '<body>'
 #    print '<p><a href=profile.py>Profile</a></p>'

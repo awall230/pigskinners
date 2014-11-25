@@ -21,6 +21,7 @@ def main():
     c = conn.cursor()
     
     form = cgi.FieldStorage()
+    contest = (form['contest'].value == 'true')
     
     email = ""
     if cookie_string:   #user already has session id
@@ -46,7 +47,13 @@ def main():
     #adding pick to db
     if form['action'].value == 'add':
         #check it they've already made this bet
-        c.execute('select * from bets where email=? and game_id=? and bet_type=?;', (email, str(b.game_id), str(b.bet_type)))
+        if contest:   #pick for weekly contest
+            c.execute('select * from contestbets where email=? and game_id=? and bet_type=?;',
+                (email, str(b.game_id), str(b.bet_type)))
+        else:
+            c.execute('select * from bets where email=? and game_id=? and bet_type=?;',
+                (email, str(b.game_id), str(b.bet_type)))
+
         bets = c.fetchall()
         if len(bets) > 0:
             pass
@@ -56,12 +63,21 @@ def main():
             b.set_american_odds(temp[1])
             b.set_odds(temp[2])
             b.set_complete(0)
-            c.execute('insert into bets (game_id, bet_type, email, margin, american_odds, odds) values (?,?,?,?,?,?);',
-                      (str(b.game_id), str(b.bet_type), email, str(b.margin), str(b.american_odds), str(b.odds)))
+            if contest:
+                b.set_amount(form['amount'].value)
+                c.execute('insert into contestbets (game_id, bet_type, email, margin, american_odds, odds, amount) values (?,?,?,?,?,?,?);',
+                          (str(b.game_id), str(b.bet_type), email, str(b.margin), str(b.american_odds), str(b.odds), str(b.amount)))
+            else:
+                c.execute('insert into bets (game_id, bet_type, email, margin, american_odds, odds) values (?,?,?,?,?,?);',
+                          (str(b.game_id), str(b.bet_type), email, str(b.margin), str(b.american_odds), str(b.odds)))
             conn.commit()
 
-            c.execute('select * from allusersbets where email=? and game_id=? and bet_type=?;',
-                      (email, str(b.game_id), str(b.bet_type)))
+            if contest:
+                c.execute('select * from alluserscontestbets where email=? and game_id=? and bet_type=?;',
+                    (email, str(b.game_id), str(b.bet_type)))
+            else:
+                c.execute('select * from allusersbets where email=? and game_id=? and bet_type=?;',
+                    (email, str(b.game_id), str(b.bet_type)))
             bet = c.fetchall()[0]
             b.set_visitor(bet[2])
             b.set_home(bet[4])
@@ -77,8 +93,12 @@ def main():
         
     #deleting pick from db
     elif form['action'].value == 'delete':
-        c.execute('delete from bets where email=? and game_id=? and bet_type=?;',
+        if contest:
+            c.execute('delete from contestbets where email=? and game_id=? and bet_type=?;',
                   (email, str(b.game_id), str(b.bet_type)))
+        else:
+            c.execute('delete from bets where email=? and game_id=? and bet_type=?;',
+                      (email, str(b.game_id), str(b.bet_type)))
         conn.commit()
         
     #print JSON (empty if deleting pick)
@@ -90,7 +110,7 @@ def main():
 def get_odds(num, bet):
     margin = 0.0
     odds = 1.0
-    american_odds = 100.0
+    american_odds = -110.0
     num = float(num)
     bet = int(bet)
     #spread or over/under: margin is the value passed through cgi, pays even odds
