@@ -35,6 +35,8 @@ $(document).ready(function() {
 
 
             $('#my_picks').css('font-weight', 'Bold');
+
+            session_deferred.resolve();
             displayRank(user);
 
             promise1.done(function() {

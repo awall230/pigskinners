@@ -22,7 +22,9 @@ $(document).ready(function() {
                 console.log('not logged in');
                 $('div').hide();
                 $("#redirect").append('<meta http-equiv="refresh" content="1; url=cgi-bin/login.py" />');
-            }              
+            }
+
+            session_deferred.resolve();              
 
             promise1.done(function() {
                 promise2.done(function() {

@@ -10,6 +10,8 @@
             var promise1 = deferred1.promise();
             var deferred2 = new $.Deferred();
             var promise2 = deferred2.promise();
+            var session_deferred = new $.Deferred();
+            var session_promise = session_deferred.promise();
             
             var user = document.URL.split('?')[1];
             user = user.split('=')[1];

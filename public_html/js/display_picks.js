@@ -1,27 +1,29 @@
 $(document).ready(function() {
     //var deferred = new $.Deferred();
-    $.ajax({
-        url: "cgi-bin/get_picks.py",
-        type: "GET",
-        data: {
-            email: 'awaller@u.rochester.edu',
-            contest: is_contest
-        },
-        dataType: "json",
-        
-        success: function(dat) {
-            $("#bet_info").append('<table id="picks"></table>');
-            var $picks = $("#picks");
-            console.dir(dat);
-            var str, bet, bet_id;
-            for (var i = 0; i < dat.bets.length; i++) { 
-                displayPick(dat.bets[i]);
+    session_promise.done(function() {   //wait until we get user info
+        $.ajax({
+            url: "cgi-bin/get_picks.py",
+            type: "GET",
+            data: {
+                email: user,
+                contest: is_contest
+            },
+            dataType: "json",
+            
+            success: function(dat) {
+                $("#bet_info").append('<table id="picks"></table>');
+                var $picks = $("#picks");
+                console.dir(dat);
+                var str, bet, bet_id;
+                for (var i = 0; i < dat.bets.length; i++) { 
+                    displayPick(dat.bets[i]);
+                    }
+                if (is_contest) {
+                    $("#bet_info").before('<h3>Remaining bankroll: ' + String(1000.0 - amount_spent) + '</h3>');
                 }
-            if (is_contest) {
-                $("#bet_info").before('<h3>Remaining bankroll: ' + String(1000.0 - amount_spent) + '</h3>');
+                deferred1.resolve();
             }
-            deferred1.resolve();
-        }
+        });
     });
 });
 
