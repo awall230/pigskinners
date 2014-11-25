@@ -80,17 +80,17 @@ if len(account) > 0:
             
             #write results to db
             if contest:
-                c.execute('update bets set result=?, winnings=?, status=? where email=? and game_id=? and bet_type=?;', (b.result, b.winnings, b.status, email, b.game_id, b.bet_type))
-            else:
                 c.execute('update contestbets set result=?, winnings=?, status=? where email=? and game_id=? and bet_type=?;', (b.result, b.winnings, b.status, email, b.game_id, b.bet_type))
+            else:
+                c.execute('update bets set result=?, winnings=?, status=? where email=? and game_id=? and bet_type=?;', (b.result, b.winnings, b.status, email, b.game_id, b.bet_type))
             conn.commit()
             
         else: #just update the bet status (open or closed)
             if contest:
-                c.execute('update bets set status=? where email=? and game_id=? and bet_type=?;',
+                c.execute('update contestbets set status=? where email=? and game_id=? and bet_type=?;',
                         (b.status, email, b.game_id, b.bet_type))
             else:
-                c.execute('update contestbets set status=? where email=? and game_id=? and bet_type=?;',
+                c.execute('update bets set status=? where email=? and game_id=? and bet_type=?;',
                         (b.status, email, b.game_id, b.bet_type))
             conn.commit()
             
