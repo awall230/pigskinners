@@ -18,7 +18,9 @@ for item in itemlist:
 	d = str(item['eid'].value[:-2])
 	d = date(int(d[0:4]), int(d[4:6]), int(d[6:8]))
 	t = (item['t'].value).split(':')
-	t = time(int(t[0]) + 12, int(t[1]))
+	t = time(int(t[0]), int(t[1]))
+	if t.hour < 9:	#these are pm games
+		t = t.replace(hour=t.hour+12) 
 	dt = datetime.combine(d, t)
 	g.set_datetime(dt)
 	
