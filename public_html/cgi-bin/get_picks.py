@@ -5,7 +5,7 @@ import sqlite3
 import os
 import Cookie
 import game
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 import get_results  #updates database with latest scores
 import json
 
@@ -48,6 +48,7 @@ if len(account) > 0:
     bets = c.fetchall()
 
     current_week = game.get_week(date.today())
+    last_week = game.get_week(date.today() - timedelta(days=7))
     
     for bet in bets:
         b = game.Bet()
@@ -96,7 +97,11 @@ if len(account) > 0:
             
         #make json string using object attributes (not callable eliminates methods)
         if contest:
-            if b.week != current_week:
+            if b.week == current_week:    #should be from this week or last week
+                b.week = "current"
+            elif b.week == last_week:
+                b.week = "last"
+            else:
                 continue
         bet_info = [(attr, value.__str__()) for attr, value in b.__dict__.items() if not callable(value)]
         bet_info = dict(bet_info)

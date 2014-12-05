@@ -40,6 +40,9 @@
                         $('#leaderboard').append('<table></table>');
                         var $leaderboard = $('#leaderboard table');
                         var str, user;
+                        str = '<tr><th>Rank</th><th>Email</th><th>Average winnings per pick</th>';
+                        str += '<th>Total winnings</th><th>Number of picks</th></tr>';
+                        $leaderboard.append(str);
                         for (var i=0; i<dat.leaders.length; i++) {
                             str = '';
                             user = dat.leaders[i];
@@ -65,11 +68,27 @@
             });
         
         </script>
+        <style>
+        #session_info{
+        	padding-left: 300px;
+        }
+        #leaderboard{
+        	background-color: #f3f5f8;
+        	border: 2px solid;
+        	width: 500px;
+        	position: absolute;
+        	right: 25px;
+        	
+        }
+        h3{
+        	text-align: center;
+        }
 
+	</style>
     </head>
     
     <body>
-        <h1>Welcome to Pigskinners!</h1>
+       	<img src = "pigskinners.png" style = "width: 100%; height: 40%">
         <h2>It's not whether you win or lose, but if you beat the spread.</h2>
         <div id = "margin">
         	<br><a href="index.html" class = "btn">HOME</a></br>

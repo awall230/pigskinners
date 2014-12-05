@@ -19,6 +19,8 @@ h2{
 	 height: 500px; 
 	 width: 250px;
 	 text-align: center;
+	 position: absolute;
+	 left: 10px;
 }
 
 .btn{
@@ -43,3 +45,8 @@ a{
 body{
 	background-color: rgb(167, 178, 201);
 }
+
+#session_id{
+	border: 2px solid;
+}
+

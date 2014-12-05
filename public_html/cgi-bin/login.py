@@ -48,9 +48,9 @@ def main():
     form = cgi.FieldStorage()
     if 'error' in form:
         if form['error'].value == "bad_login":
-            print '<h2>Invalid e-mail/password combination</h2>'
+            print '<h3>Invalid e-mail/password combination</h3>'
         elif form['error'].value == "incomplete_login":
-            print '<h2>Please enter a username and password</h2>'
+            print '<h3>Please enter a username and password</h3>'
     
     print '<form method="post" action="error_check.py">'
     print 'E-mail: <input name="email" type=text size="30"/>'
