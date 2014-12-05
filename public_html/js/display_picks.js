@@ -12,24 +12,33 @@ $(document).ready(function() {
             
             success: function(dat) {
                 $("#bet_info").append('<table id="picks"></table>');
-                var $picks = $("#picks");
+                if (is_contest) {
+                    $("#picks").prepend('<h3>Remaining bankroll: <span id="bankroll">1000</span></h3>');
+                    $("#bet_info").append('<table id="past_picks"></table>');
+                }
                 console.dir(dat);
                 var str, bet, bet_id;
-                for (var i = 0; i < dat.bets.length; i++) { 
-                    displayPick(dat.bets[i]);
+                for (var i = 0; i < dat.bets.length; i++) {
+                    if (is_contest){
+                        if (dat.bets[i].week === "current") {
+                            displayPick(dat.bets[i], $("#picks"));
+                        }
+                        else {
+                            displayPick(dat.bets[i], $("#past_picks"));
+                        }
                     }
-                if (is_contest) {
-                    $("#bet_info").before('<h3>Remaining bankroll: ' + String(1000.0 - amount_spent) + '</h3>');
-                }
+                    else {
+                        displayPick(dat.bets[i],$("#picks"));
+                    }
+                }   
                 deferred1.resolve();
             }
         });
     });
 });
 
-function displayPick(bet) {
+function displayPick(bet, $picks) {
     var str, bet_id;
-    var $picks = $("#picks");
     str = "";
     bet_id = bet.game_id + '-' + bet.bet_type;
 
@@ -67,9 +76,12 @@ function displayPick(bet) {
     str += '</tr>';
 
     str += '<tr><td colspan="2">' + bet.dt + '</td>';
-    if (is_contest) {
-        str += '<td>Wager:</td><td>' + bet.amount + '</td>';
-        amount_spent += parseFloat(bet.amount);
+    if (is_contest) { 
+        str += '<td>Wager:</td><td class="amount">' + bet.amount + '</td>';
+        if ($picks.is('#picks')) {
+            amount_spent += parseFloat(bet.amount);
+            $('#bankroll').text(String(1000.0 - amount_spent));
+        }
     }
     str += '</tr>';
     

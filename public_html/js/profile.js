@@ -54,6 +54,7 @@ $(document).ready(function() {
                         addPick($picks[i].id);
                     }
                     $('#odds').hide();
+                    $('#my_picks').css('font-weight', 'Bold');
                     clickHandlers();
                 });
             });   
@@ -79,7 +80,7 @@ function displayRank(user_email) {
                 rank_string += 'Rank: ' + dat.rank + ' of ' + dat.user_count + '<br/></p>';
             }
             else {
-                rank_string = '<p>No completed bets yet...</p>';
+                rank_string = '<p>No winnings yet...</p>';
             }
             $('#user_info').append(rank_string);
         }
@@ -122,8 +123,7 @@ function clickHandlers() {
                 console.log('here');
                 console.dir(dat);
                 if (dat.bets.length > 0) {
-                    console.log('heree');
-                    displayPick(dat.bets[0]);
+                    displayPick(dat.bets[0], $('#picks'));
                     addPick(b_id);
                     clickHandlers();
                 }
